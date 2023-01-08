@@ -1,5 +1,6 @@
 package com.power.controller;
 
+import com.power.domain.ResponseResult;
 import com.power.domain.entity.Article;
 import com.power.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,14 @@ public class ArticleController {
     @Autowired
     private ArticleService articleService;
 
-    @GetMapping("/list")
-    public List<Article> test() {
-        return articleService.list();
+//    @GetMapping("/list")
+//    public List<Article> test() {
+//        return articleService.list();
+//    }
+
+    @GetMapping("/hotArticleList")
+    public ResponseResult hostArticleList() {
+        ResponseResult result = articleService.hostArticleList();
+        return result;
     }
 }

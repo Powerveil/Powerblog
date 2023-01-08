@@ -1,5 +1,6 @@
 package com.power.service;
 
+import com.power.domain.ResponseResult;
 import com.power.domain.entity.Article;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -10,4 +11,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface ArticleService extends IService<Article> {
 
+    ResponseResult hostArticleList();
 }

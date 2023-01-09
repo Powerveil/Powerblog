@@ -20,4 +20,17 @@ public class SystemConstants
      */
     public static final String CATEGORY_STATUS_NORMAL = "0";
 
+    /**
+     *  友链审核未通过
+     */
+    public static final String LINK_STATUS_DRAFT = "0";
+    /**
+     *  友链审核未通过
+     */
+    public static final String LINK_STATUS_NORMAL = "1";
+    /**
+     *  友链未审核
+     */
+    public static final String LINK_STATUS_NOT = "2";
+
 }

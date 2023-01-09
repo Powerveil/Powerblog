@@ -12,4 +12,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface ArticleService extends IService<Article> {
 
     ResponseResult hostArticleList();
+
+    ResponseResult articleList(Integer pageNum, Integer pageSize, Long categoryId);
+
+    ResponseResult getArticleDetail(Integer id);
 }

@@ -10,18 +10,16 @@ import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 
 /**
- * 文章表
- * @TableName power_article
+ * 友链
+ * @TableName power_link
  */
-@TableName(value ="power_article")
+@TableName(value ="power_link")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Accessors(chain = true)
-public class Article implements Serializable {
+public class Link implements Serializable {
     /**
      * 
      */
@@ -29,55 +27,29 @@ public class Article implements Serializable {
     private Long id;
 
     /**
-     * 标题
+     * 友链名称
      */
-    private String title;
+    private String name;
 
     /**
-     * 文章内容
+     * 友链logo
      */
-    private String content;
+    private String logo;
 
     /**
-     * 文章摘要
+     * 友链描述
      */
-    private String summary;
+    private String description;
 
     /**
-     * 所属分类id
+     * 网站地址
      */
-    private Long categoryId;
+    private String address;
 
     /**
-     * 所属分类名称
-     */
-    @TableField(exist = false)
-    private String categoryName;
-
-    /**
-     * 缩略图
-     */
-    private String thumbnail;
-
-    /**
-     * 是否置顶（0否，1是）
-     */
-    private String isTop;
-
-    /**
-     * 状态（0已发布，1草稿）
+     * 审核状态 (0代表审核通过，1代表审核未通过，2代表未审核)
      */
     private String status;
-
-    /**
-     * 访问量
-     */
-    private Long viewCount;
-
-    /**
-     * 是否允许评论 1是，0否
-     */
-    private String isComment;
 
     /**
      * 

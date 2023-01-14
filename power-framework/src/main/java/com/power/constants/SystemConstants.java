@@ -33,4 +33,10 @@ public class SystemConstants
      */
     public static final String LINK_STATUS_NOT = "2";
 
+
+    /**
+     *  根评论Id
+     */
+    public static final long COMMENT_ROOT_ID = -1;
+
 }

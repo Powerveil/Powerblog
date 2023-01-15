@@ -1,5 +1,6 @@
 package com.power.service;
 
+import com.power.domain.ResponseResult;
 import com.power.domain.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -10,4 +11,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface UserService extends IService<User> {
 
+    ResponseResult userInfo();
 }

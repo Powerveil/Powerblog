@@ -33,10 +33,29 @@ public class SystemConstants
      */
     public static final String LINK_STATUS_NOT = "2";
 
-
     /**
      *  根评论Id
      */
     public static final long COMMENT_ROOT_ID = -1;
+
+    /**
+     *  管理员Id
+     */
+    public static final Long USER_ADMIN_ID = 1L;
+
+    /**
+     *  注册时默认UserId(注册时自己还是一个游客)
+     */
+    public static final Long DEFAULT_REGISTER_USER_ID = 1L;
+
+    /**
+     *  评论类型：文章评论
+     */
+    public static final String ARTICLE_COMMENT_TYPE = "0";
+
+    /**
+     *  评论类型：友链评论
+     */
+    public static final String LINK_COMMENT_TYPE = "1";
 
 }

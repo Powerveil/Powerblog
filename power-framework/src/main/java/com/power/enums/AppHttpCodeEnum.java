@@ -12,7 +12,9 @@ public enum AppHttpCodeEnum {
     REQUIRE_USERNAME(504, "必需填写用户名"),
     LOGIN_ERROR(505,"用户名或密码错误"),
     COMMENT_NOT_NULL(506, "评论不能为空"),
-    COMMENT_CONTENT_NOT_NULL(507, "评论内容不能为空");
+    COMMENT_CONTENT_NOT_NULL(507, "评论内容不能为空"),
+    FILE_TYPE_ERROR(508, "文件类型错误，请上传png/jpg/jpeg文件"),
+    USER_NOT_NULL(509, "用户不能为空");
     int code;
     String msg;
 

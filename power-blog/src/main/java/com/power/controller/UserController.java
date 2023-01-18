@@ -1,5 +1,6 @@
 package com.power.controller;
 
+import com.power.annotation.SystemLog;
 import com.power.domain.ResponseResult;
 import com.power.domain.entity.User;
 import com.power.service.UserService;
@@ -23,7 +24,14 @@ public class UserController {
     }
 
     @PutMapping("/userInfo")
+    @SystemLog(businessName = "更新用户信息")
     public ResponseResult updateUserInfo(@RequestBody User user) {
         return userService.updateUserInfo(user);
+    }
+
+
+    @PostMapping("/register")
+    public ResponseResult register(@RequestBody User user) {
+        return userService.register(user);
     }
 }

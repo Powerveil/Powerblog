@@ -48,9 +48,8 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             userId = claims.getSubject();
         } catch (Exception e) {
             e.printStackTrace();
-            // token超市 token非法
+            // token超时 token非法
             // 响应告诉前端需要重新登录
-
             ResponseResult result = ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN);
             WebUtils.renderString(response, JSON.toJSONString(result));
         }

@@ -17,6 +17,7 @@ import com.power.mapper.ArticleMapper;
 import com.power.service.CategoryService;
 import com.power.utils.BeanCopyUtils;
 import com.power.utils.PageUtils;
+import com.power.utils.RedisCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +39,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private RedisCache redisCache;
+
     @Override
     public ResponseResult hostArticleList() {
         // 查询热门文章 封装成ResponseResult返回
@@ -49,12 +53,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         // 最多只查询10条
         Page<Article> pageInfo = new Page<>(1, 10);
         page(pageInfo,queryWrapper);
-        List<Article> records = pageInfo.getRecords();
+        List<Article> articles = pageInfo.getRecords();
+        // 从redis中获取viewCount
+        setListCurrentViewCount(articles);
         // 使用自定义进行bean拷贝
-        List<HotArticleVo> articleVOs = BeanCopyUtils.copyBeanList(records, HotArticleVo.class);
+        List<HotArticleVo> articleVOs = BeanCopyUtils.copyBeanList(articles, HotArticleVo.class);
         // 返回结果
         return ResponseResult.okResult(articleVOs);
     }
+
 
     @Override
     public ResponseResult articleList(Integer pageNum, Integer pageSize, Long categoryId) {
@@ -77,7 +84,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         List<Article> articles = pageInfo.getRecords();
         // 1. 使用stream流
         articles = articles.stream()
-                .map(article -> article.setCategoryName(categoryService.getById(article.getCategoryId()).getName()))
+                .map(article -> {
+                    setCurrentViewCount(article);
+                    return article.setCategoryName(categoryService.getById(article.getCategoryId()).getName());
+                })
                 .collect(Collectors.toList());
 
         // 2. 使用for循环
@@ -100,6 +110,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     public ResponseResult getArticleDetail(Integer id) {
         // 根据id查询文章
         Article article = getById(id);
+        // 从redis中获取viewCount
+        setCurrentViewCount(article);
         // 转换为VO
         ArticleDetailVo articleDetailVo = BeanCopyUtils.copyBean(article, ArticleDetailVo.class);
         // 根据分类id查询分类名
@@ -110,6 +122,30 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         // 封装响应返回
         return ResponseResult.okResult(articleDetailVo);
     }
+
+    // 从redis中查询viewCount并设置到该articles中
+    private void setListCurrentViewCount(List<Article> articles) {
+        for (Article article : articles) {
+            setCurrentViewCount(article);
+        }
+    }
+
+    // 从redis中查询viewCount并设置到该article中
+    private void setCurrentViewCount(Article article) {
+        Integer viewCount = redisCache.getCacheMapValue(SystemConstants.ARTICLE_VIEW_COUNT_KEY, article.getId().toString());
+        if (!Objects.isNull(viewCount)) {
+            article.setViewCount(viewCount.longValue());
+        }
+    }
+
+    @Override
+    public ResponseResult updateViewCount(Integer id) {
+        redisCache.incrementCacheMapValue(SystemConstants.ARTICLE_VIEW_COUNT_KEY, id.toString(), 1);
+        return ResponseResult.okResult();
+    }
+
+
+
 }
 
 

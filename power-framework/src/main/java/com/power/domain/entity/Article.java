@@ -92,13 +92,13 @@ public class Article implements Serializable {
     /**
      * 
      */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+//    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updateBy;
 
     /**
      * 
      */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+//    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date updateTime;
 
     /**
@@ -108,4 +108,9 @@ public class Article implements Serializable {
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
+
+    public Article(Long id, Long viewCount) {
+        this.id = id;
+        this.viewCount = viewCount;
+    }
 }

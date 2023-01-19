@@ -5,6 +5,8 @@ import com.power.domain.entity.LoginUser;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.Objects;
+
 /**
  * @author power
  * @Date 2023/1/15 16:33
@@ -13,9 +15,11 @@ public class SecurityUtils {
     /**
      * 获取用户
      **/
-    public static LoginUser getLoginUser()
-    {
-        return (LoginUser) getAuthentication().getPrincipal();
+    public static LoginUser getLoginUser() {
+        if (!Objects.isNull(getAuthentication())) {
+            return (LoginUser) getAuthentication().getPrincipal();
+        }
+        return null;
     }
 
     /**
@@ -25,12 +29,18 @@ public class SecurityUtils {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 
-    public static Boolean isAdmin(){
-        Long id = getLoginUser().getUser().getId();
-        return SystemConstants.USER_ADMIN_ID.equals(id);
+    public static Boolean isAdmin() {
+        if (!Objects.isNull(getLoginUser())) {
+            Long id = getLoginUser().getUser().getId();
+            return SystemConstants.USER_ADMIN_ID.equals(id);
+        }
+        return false;
     }
 
     public static Long getUserId() {
-        return getLoginUser().getUser().getId();
+        if (!Objects.isNull(getLoginUser())) {
+            return getLoginUser().getUser().getId();
+        }
+        return null;
     }
 }

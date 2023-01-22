@@ -63,4 +63,17 @@ public class SystemConstants
      */
     public static final String ARTICLE_VIEW_COUNT_KEY = "article:viewCount";
 
+
+
+    /**
+     *  redis中博客前台的Jwt的key
+     */
+    public static final String JWT_BLOG_KEY_PREFIX = "bloglogin:";
+
+
+    /**
+     *  redis中博客后台的Jwt的key
+     */
+    public static final String JWT_ADMIN_KEY_PREFIX = "login:";
+
 }

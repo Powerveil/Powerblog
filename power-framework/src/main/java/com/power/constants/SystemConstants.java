@@ -76,4 +76,14 @@ public class SystemConstants
      */
     public static final String JWT_ADMIN_KEY_PREFIX = "login:";
 
+
+
+    public static final String MENU = "C";
+    public static final String BUTTON = "F";
+
+    public static final String STATUS_NORMAL = "0";
+
+
+
+
 }

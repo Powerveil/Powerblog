@@ -1,9 +1,12 @@
 package com.power.controller;
 
+import com.power.constants.SystemConstants;
 import com.power.domain.ResponseResult;
 import com.power.domain.entity.LoginUser;
+import com.power.domain.entity.Menu;
 import com.power.domain.entity.User;
 import com.power.domain.vo.AdminUserInfoVo;
+import com.power.domain.vo.MenuVo;
 import com.power.domain.vo.RoutersVo;
 import com.power.domain.vo.UserInfoVo;
 import com.power.enums.AppHttpCodeEnum;
@@ -13,6 +16,7 @@ import com.power.service.BlogLoginService;
 import com.power.service.MenuService;
 import com.power.service.RoleService;
 import com.power.utils.BeanCopyUtils;
+import com.power.utils.RedisCache;
 import com.power.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -65,6 +69,15 @@ public class AdminLoginController {
 
     @GetMapping("getRouters")
     public ResponseResult<RoutersVo> getRouters() {
+        Long userId = SecurityUtils.getUserId();
+        // 查询menu 结果是tree的形式
+        List<Menu> menus = menuService.selectRouterMenuTreeByUserId(userId);
+        // 封装数据返回
+        return ResponseResult.okResult(new RoutersVo(menus));
+    }
 
+    @PostMapping("/user/logout")
+    public ResponseResult logout() {
+        return adminLoginService.logout();
     }
 }

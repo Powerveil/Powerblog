@@ -1,12 +1,13 @@
 package com.power.domain.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.io.Serializable;
 import java.util.Date;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 标签
@@ -14,6 +15,8 @@ import lombok.Data;
  */
 @TableName(value ="power_tag")
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Tag implements Serializable {
     /**
      * 
@@ -29,21 +32,25 @@ public class Tag implements Serializable {
     /**
      * 
      */
+    @TableField(fill = FieldFill.INSERT)
     private Long createBy;
 
     /**
      * 
      */
+    @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /**
      * 
      */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long updateBy;
 
     /**
      * 
      */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date updateTime;
 
     /**

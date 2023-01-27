@@ -11,4 +11,6 @@ import com.power.domain.entity.User;
  */
 public interface AdminLoginService {
     ResponseResult login(User user);
+
+    ResponseResult logout();
 }

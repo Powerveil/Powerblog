@@ -1,5 +1,6 @@
 package com.power.service.impl;
 
+import com.power.constants.SystemConstants;
 import com.power.domain.ResponseResult;
 import com.power.domain.entity.LoginUser;
 import com.power.domain.entity.User;
@@ -10,6 +11,7 @@ import com.power.service.BlogLoginService;
 import com.power.utils.BeanCopyUtils;
 import com.power.utils.JwtUtil;
 import com.power.utils.RedisCache;
+import com.power.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -53,5 +55,14 @@ public class AdminLoginServiceImpl implements AdminLoginService {
         Map<String,String> map = new HashMap<>();
         map.put("token",jwt);
         return ResponseResult.okResult(map);
+    }
+
+    @Override
+    public ResponseResult logout() {
+        // 获取当前登录的用户id
+        Long userId = SecurityUtils.getUserId();
+        // 删除redis中对应的值
+        redisCache.deleteObject(SystemConstants.JWT_ADMIN_KEY_PREFIX + userId);
+        return ResponseResult.okResult();
     }
 }

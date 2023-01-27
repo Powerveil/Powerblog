@@ -85,5 +85,11 @@ public class SystemConstants
 
 
 
+    public static final Long MENU_PARENT_ID = 0L;
+
+
+
+
+
 
 }

@@ -1,5 +1,9 @@
 package com.power.service;
 
+import com.power.domain.ResponseResult;
+import com.power.domain.dto.AddTagDto;
+import com.power.domain.dto.TagListDto;
+import com.power.domain.dto.UpdateTagDto;
 import com.power.domain.entity.Tag;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -10,4 +14,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface TagService extends IService<Tag> {
 
+    ResponseResult pageRagList(Integer pageNum, Integer pageSize, TagListDto tagListDto);
+
+    ResponseResult addTag(AddTagDto addTagDto);
+
+    ResponseResult deleteTagById(Long id);
+
+    ResponseResult updateTag(UpdateTagDto updateTagDto);
 }

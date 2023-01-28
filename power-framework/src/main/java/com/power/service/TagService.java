@@ -6,6 +6,9 @@ import com.power.domain.dto.TagListDto;
 import com.power.domain.dto.UpdateTagDto;
 import com.power.domain.entity.Tag;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.power.domain.vo.TagVo;
+
+import java.util.List;
 
 /**
 * @author power
@@ -21,4 +24,6 @@ public interface TagService extends IService<Tag> {
     ResponseResult deleteTagById(Long id);
 
     ResponseResult updateTag(UpdateTagDto updateTagDto);
+
+    List<TagVo> listAllTag();
 }

@@ -6,7 +6,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.power.constants.SystemConstants;
 import com.power.domain.ResponseResult;
+import com.power.domain.dto.AddArticleDto;
 import com.power.domain.entity.Article;
+import com.power.domain.entity.ArticleTag;
 import com.power.domain.entity.Category;
 import com.power.domain.vo.ArticleDetailVo;
 import com.power.domain.vo.ArticleListVo;
@@ -14,6 +16,7 @@ import com.power.domain.vo.HotArticleVo;
 import com.power.domain.vo.PageVo;
 import com.power.service.ArticleService;
 import com.power.mapper.ArticleMapper;
+import com.power.service.ArticleTagService;
 import com.power.service.CategoryService;
 import com.power.utils.BeanCopyUtils;
 import com.power.utils.PageUtils;
@@ -41,6 +44,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Autowired
     private RedisCache redisCache;
+
+    @Autowired
+    private ArticleTagService articleTagService;
 
     @Override
     public ResponseResult hostArticleList() {
@@ -144,6 +150,21 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         return ResponseResult.okResult();
     }
 
+    @Override
+    public ResponseResult add(AddArticleDto articleDto) {
+        //添加 博客
+        Article article = BeanCopyUtils.copyBean(articleDto, Article.class);
+        save(article);
+
+
+        List<ArticleTag> articleTags = articleDto.getTags().stream()
+                .map(tagId -> new ArticleTag(article.getId(), tagId))
+                .collect(Collectors.toList());
+
+        //添加 博客和标签的关联
+        articleTagService.saveBatch(articleTags);
+        return ResponseResult.okResult();
+    }
 
 
 }

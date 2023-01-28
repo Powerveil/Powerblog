@@ -1,6 +1,7 @@
 package com.power.service;
 
 import com.power.domain.ResponseResult;
+import com.power.domain.dto.AddArticleDto;
 import com.power.domain.entity.Article;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -18,4 +19,6 @@ public interface ArticleService extends IService<Article> {
     ResponseResult getArticleDetail(Integer id);
 
     ResponseResult updateViewCount(Integer id);
+
+    ResponseResult add(AddArticleDto article);
 }

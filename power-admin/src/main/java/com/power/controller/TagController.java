@@ -4,9 +4,12 @@ import com.power.domain.ResponseResult;
 import com.power.domain.dto.AddTagDto;
 import com.power.domain.dto.TagListDto;
 import com.power.domain.dto.UpdateTagDto;
+import com.power.domain.vo.TagVo;
 import com.power.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author power
@@ -38,6 +41,12 @@ public class TagController {
     @PutMapping
     public ResponseResult updateTag(@RequestBody UpdateTagDto updateTagDto) {
         return tagService.updateTag(updateTagDto);
+    }
+
+    @GetMapping("/listAllTag")
+    public ResponseResult listAllTag(){
+        List<TagVo> list = tagService.listAllTag();
+        return ResponseResult.okResult(list);
     }
 
 //    @GetMapping("/list")

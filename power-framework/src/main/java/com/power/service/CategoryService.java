@@ -3,6 +3,9 @@ package com.power.service;
 import com.power.domain.ResponseResult;
 import com.power.domain.entity.Category;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.power.domain.vo.CategoryVo;
+
+import java.util.List;
 
 /**
 * @author power
@@ -12,4 +15,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface CategoryService extends IService<Category> {
 
     ResponseResult getCategoryList();
+
+    List<CategoryVo> listAllCategory();
 }

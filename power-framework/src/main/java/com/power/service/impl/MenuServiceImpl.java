@@ -3,12 +3,16 @@ package com.power.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.power.constants.SystemConstants;
+import com.power.domain.ResponseResult;
 import com.power.domain.entity.Menu;
+import com.power.domain.vo.ListMenuVo;
 import com.power.domain.vo.MenuVo;
 import com.power.service.MenuService;
 import com.power.mapper.MenuMapper;
+import com.power.utils.BeanCopyUtils;
 import com.power.utils.SecurityUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,6 +59,23 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
         List<Menu> menuTree = builderMenuTree(menus, SystemConstants.MENU_PARENT_ID);
 
         return menuTree;
+    }
+
+    @Override
+    public ResponseResult listMenu(String status, String menuName) {
+        LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
+
+        queryWrapper.like(StringUtils.hasText(menuName), Menu::getMenuName, menuName);
+        queryWrapper.eq(StringUtils.hasText(status), Menu::getStatus, status);
+
+        queryWrapper.orderByAsc(Menu::getParentId);
+        queryWrapper.orderByAsc(Menu::getOrderNum);
+
+        List<Menu> menus = list(queryWrapper);
+
+        List<ListMenuVo> listMenuVos = BeanCopyUtils.copyBeanList(menus, ListMenuVo.class);
+
+        return ResponseResult.okResult(listMenuVos);
     }
 
     private List<Menu> builderMenuTree(List<Menu> menus, Long parentId) {

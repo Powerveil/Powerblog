@@ -15,11 +15,11 @@ public class AddArticleDto {
     //标题
     private String title;
     //文章内容
-    private String content;
+    private String content;//
     //文章摘要
     private String summary;
     //所属分类id
-    private Long categoryId;
+    private Long categoryId;//
 
     //缩略图
     private String thumbnail;

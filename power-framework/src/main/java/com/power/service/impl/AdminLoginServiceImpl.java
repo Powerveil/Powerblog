@@ -38,10 +38,10 @@ public class AdminLoginServiceImpl implements AdminLoginService {
 
     @Override
     public ResponseResult login(User user) {
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user.getUserName(),user.getPassword());
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user.getUserName(), user.getPassword());
         Authentication authenticate = authenticationManager.authenticate(authenticationToken);
         //判断是否认证通过
-        if(Objects.isNull(authenticate)){
+        if (Objects.isNull(authenticate)) {
             throw new RuntimeException("用户名或密码错误");
         }
         //获取userid 生成token
@@ -49,11 +49,11 @@ public class AdminLoginServiceImpl implements AdminLoginService {
         String userId = loginUser.getUser().getId().toString();
         String jwt = JwtUtil.createJWT(userId);
         //把用户信息存入redis
-        redisCache.setCacheObject("login:"+userId,loginUser);
+        redisCache.setCacheObject(SystemConstants.JWT_ADMIN_KEY_PREFIX + userId, loginUser);
 
         //把token封装 返回
-        Map<String,String> map = new HashMap<>();
-        map.put("token",jwt);
+        Map<String, String> map = new HashMap<>();
+        map.put("token", jwt);
         return ResponseResult.okResult(map);
     }
 

@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.mybatis.spring.annotation.MapperScan;
 
+import java.util.List;
+
 /**
 * @author power
 * @description 针对表【power_article(文章表)】的数据库操作Mapper
@@ -13,6 +15,7 @@ import org.mybatis.spring.annotation.MapperScan;
 */
 public interface ArticleMapper extends BaseMapper<Article> {
 
+    List<String> getTags(Long id);
 }
 
 

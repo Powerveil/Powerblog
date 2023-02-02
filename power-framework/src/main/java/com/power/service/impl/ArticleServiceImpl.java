@@ -1,7 +1,6 @@
 package com.power.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.power.constants.SystemConstants;
@@ -10,10 +9,8 @@ import com.power.domain.dto.AddArticleDto;
 import com.power.domain.entity.Article;
 import com.power.domain.entity.ArticleTag;
 import com.power.domain.entity.Category;
-import com.power.domain.vo.ArticleDetailVo;
-import com.power.domain.vo.ArticleListVo;
-import com.power.domain.vo.HotArticleVo;
-import com.power.domain.vo.PageVo;
+import com.power.domain.vo.*;
+import com.power.enums.AppHttpCodeEnum;
 import com.power.service.ArticleService;
 import com.power.mapper.ArticleMapper;
 import com.power.service.ArticleTagService;
@@ -21,14 +18,14 @@ import com.power.service.CategoryService;
 import com.power.utils.BeanCopyUtils;
 import com.power.utils.PageUtils;
 import com.power.utils.RedisCache;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import javax.xml.ws.Action;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
 * @author power
@@ -36,6 +33,7 @@ import java.util.stream.Stream;
 * @createDate 2023-01-06 20:51:06
 */
 @Service
+@Slf4j
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     implements ArticleService{
     
@@ -47,6 +45,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Autowired
     private ArticleTagService articleTagService;
+
 
     @Override
     public ResponseResult hostArticleList() {
@@ -163,6 +162,54 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
         //添加 博客和标签的关联
         articleTagService.saveBatch(articleTags);
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult listArticle(Integer pageNum, Integer pageSize, String title, String summary) {
+        Page<Article> pageInfo = new Page<>(pageNum, pageSize);
+
+        log.info("title:{}", title);
+        log.info("summary:{}", summary);
+
+        LambdaQueryWrapper<Article> queryWrapper = new LambdaQueryWrapper<>();
+
+        queryWrapper.like(StringUtils.hasText(title), Article::getTitle, title);
+        queryWrapper.like(StringUtils.hasText(summary), Article::getSummary, summary);
+        queryWrapper.orderByDesc(Article::getIsTop);
+
+        page(pageInfo, queryWrapper);
+        List<Article> articles = pageInfo.getRecords();
+
+        articles = articles.stream()
+                .map(article -> {
+                    setCurrentViewCount(article);
+                    return article.setCategoryName(categoryService.getById(article.getCategoryId()).getName());
+                })
+                .collect(Collectors.toList());
+
+        List<ListArticleVo> listArticleVos = BeanCopyUtils.copyBeanList(articles, ListArticleVo.class);
+
+        PageVo pageVo = new PageVo(listArticleVos, pageInfo.getTotal());
+        return ResponseResult.okResult(pageVo);
+    }
+
+    @Override
+    public ResponseResult articleDetails(Long id) {
+        if (Objects.isNull(id)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.PARAMETER_NOT_NULL);
+        }
+        Article article = getById(id);
+        log.info("article:{}", article);
+        ArticleMapper mapper = getBaseMapper();
+        List<String> tags = mapper.getTags(id);
+        article.setTags(tags);
+        return ResponseResult.okResult(article);
+    }
+
+    @Override
+    public ResponseResult updateArticle(Article article) {
+        updateById(article);
         return ResponseResult.okResult();
     }
 

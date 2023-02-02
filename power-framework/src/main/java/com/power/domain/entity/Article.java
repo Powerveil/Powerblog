@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -105,6 +106,12 @@ public class Article implements Serializable {
      * 删除标志（0代表未删除，1代表已删除）
      */
     private Integer delFlag;
+
+    /**
+     * 所属标签名称集合
+     */
+    @TableField(exist = false)
+    private List<String> tags;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

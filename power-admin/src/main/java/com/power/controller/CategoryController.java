@@ -11,6 +11,7 @@ import com.power.service.CategoryService;
 import com.power.utils.BeanCopyUtils;
 import com.power.utils.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +36,8 @@ public class CategoryController {
         return ResponseResult.okResult(list);
     }
 
+    @PreAuthorize("@ps.hasPermission('content:category:export')")
+    @GetMapping("/export")
     public void export(HttpServletResponse response) {
         // 设置下载文件的请求头
         try {
@@ -54,8 +57,6 @@ public class CategoryController {
             ResponseResult result = ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR);
             WebUtils.renderString(response, JSON.toJSONString(result));
         }
-
-
     }
 
 

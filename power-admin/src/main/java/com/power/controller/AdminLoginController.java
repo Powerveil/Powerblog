@@ -18,6 +18,7 @@ import com.power.service.RoleService;
 import com.power.utils.BeanCopyUtils;
 import com.power.utils.RedisCache;
 import com.power.utils.SecurityUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,7 @@ import java.util.List;
  * @Date 2023/1/23 14:43
  */
 @RestController
+@Slf4j
 public class AdminLoginController {
     @Autowired
     private AdminLoginService adminLoginService;
@@ -45,6 +47,7 @@ public class AdminLoginController {
             // 提示 必须要传用户名
             throw new SystemException(AppHttpCodeEnum.REQUIRE_USERNAME);
         }
+        log.info("login接口");
         return adminLoginService.login(user);
     }
 
@@ -78,6 +81,7 @@ public class AdminLoginController {
 
     @PostMapping("/user/logout")
     public ResponseResult logout() {
+        log.info("logout接口");
         return adminLoginService.logout();
     }
 }

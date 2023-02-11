@@ -4,17 +4,22 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.power.constants.SystemConstants;
 import com.power.domain.ResponseResult;
+import com.power.domain.dto.MenuDto;
 import com.power.domain.entity.Menu;
 import com.power.domain.vo.ListMenuVo;
+import com.power.domain.vo.MenuListVo;
 import com.power.domain.vo.MenuVo;
+import com.power.enums.AppHttpCodeEnum;
 import com.power.service.MenuService;
 import com.power.mapper.MenuMapper;
 import com.power.utils.BeanCopyUtils;
 import com.power.utils.SecurityUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -76,6 +81,80 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
         List<ListMenuVo> listMenuVos = BeanCopyUtils.copyBeanList(menus, ListMenuVo.class);
 
         return ResponseResult.okResult(listMenuVos);
+    }
+
+    @Override
+    @Transactional
+    public ResponseResult addMenu(Menu menu) {
+        save(menu);
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult getMenuById(Long id) {
+        if (Objects.isNull(id)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.PARAMETER_NOT_NULL);
+        }
+        Menu menu = getById(id);
+        MenuDto menuDto = BeanCopyUtils.copyBean(menu, MenuDto.class);
+        return ResponseResult.okResult(menuDto);
+    }
+
+    @Override
+    public ResponseResult updateMenu(Menu menu) {
+        if (!menu.getParentId().equals(menu.getId())) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.UPDATE_MENU_PARENT_ERROR);
+        }
+        LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Menu::getId, menu.getId());
+        update(menu, queryWrapper);
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult deleteMenuById(Long id) {
+        Menu menu = getById(id);
+        LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Menu::getParentId, id);
+        int count = count(queryWrapper);
+        if (count > 0) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.UPDATE_MENU_CHILDREN_ERROR);
+        }
+        removeById(id);
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult treeSelect() {
+        LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Menu::getParentId, SystemConstants.MENU_PARENT_ID);
+        queryWrapper.orderByAsc(Menu::getOrderNum);
+        // 找到所有根节点
+        List<Menu> list = list(queryWrapper);
+
+        List<MenuListVo> menuListVos = BeanCopyUtils.copyBeanList(list, MenuListVo.class);
+        // 查询所有根评论对应的子评论集合，并且赋值给对应的属性
+        for (MenuListVo menuListVo : menuListVos) {
+            List<MenuListVo> children = getChildren2(menuListVo.getId());
+            menuListVo.setChildren(children);
+        }
+        return ResponseResult.okResult(menuListVos);
+    }
+
+    private List<MenuListVo> getChildren2(Long id) {
+        LambdaQueryWrapper<Menu> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Menu::getParentId, id);
+        queryWrapper.orderByAsc(Menu::getOrderNum);
+        List<Menu> list = list(queryWrapper);
+        if (Objects.isNull(list)) {
+            return null;
+        }
+        List<MenuListVo> menuListVos = BeanCopyUtils.copyBeanList(list, MenuListVo.class);
+        for (MenuListVo menuListVo : menuListVos) {
+            List<MenuListVo> children2 = getChildren2(menuListVo.getId());
+            menuListVo.setChildren(children2);
+        }
+        return menuListVos;
     }
 
     private List<Menu> builderMenuTree(List<Menu> menus, Long parentId) {

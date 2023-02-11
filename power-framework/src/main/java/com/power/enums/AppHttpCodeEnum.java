@@ -24,7 +24,11 @@ public enum AppHttpCodeEnum {
     PARAMETER_NOT_NULL(515, "参数不能为空"),
     TAG_EXIST(516, "标签已存在"),
     DELETE_ERROR(517, "删除失败"),
-    UPDATE_ERROR(518, "更新失败");
+    UPDATE_ERROR(518, "更新失败"),
+    UPDATE_MENU_PARENT_ERROR(519, "修改菜单'写博文'失败，上级菜单不能选择自己"),
+    UPDATE_MENU_CHILDREN_ERROR(520, "存在子菜单不允许删除"),
+    ID_NOT_NULL(521, "id参数不能为空"),
+    STATUS_NOT_NULL(522, "status不能为空");
     int code;
     String msg;
 

@@ -120,6 +120,7 @@ public class Menu implements Serializable {
     @TableField(exist = false)
     private List<Menu> children;//
 
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

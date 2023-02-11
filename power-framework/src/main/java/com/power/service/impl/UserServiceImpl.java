@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.power.domain.ResponseResult;
 import com.power.domain.entity.User;
+import com.power.domain.entity.UserRole;
 import com.power.domain.vo.UserInfoVo;
 import com.power.enums.AppHttpCodeEnum;
 import com.power.exception.SystemException;
+import com.power.service.UserRoleService;
 import com.power.service.UserService;
 import com.power.mapper.UserMapper;
 import com.power.utils.BeanCopyUtils;
@@ -14,8 +16,10 @@ import com.power.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -30,6 +34,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+
+    @Autowired
+    private UserRoleService userRoleService;
 
     @Override
     public ResponseResult userInfo() {

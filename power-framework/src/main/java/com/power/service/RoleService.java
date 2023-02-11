@@ -1,5 +1,8 @@
 package com.power.service;
 
+import com.power.domain.ResponseResult;
+import com.power.domain.dto.AddRoleDto;
+import com.power.domain.dto.RoleChangeStatusDto;
 import com.power.domain.entity.Role;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -13,4 +16,14 @@ import java.util.List;
 public interface RoleService extends IService<Role> {
 
     List<String> selectRoleKeyByUserId(Long id);
+
+    ResponseResult roleList(Long pageNum, Long pageSize, String roleName, String status);
+
+    ResponseResult changeStatus(RoleChangeStatusDto roleChangeStatusDto);
+
+    ResponseResult addRole(AddRoleDto addRoleDto);
+
+    ResponseResult getRole(Long id);
+
+    ResponseResult deleteById(Long id);
 }

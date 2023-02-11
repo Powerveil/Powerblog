@@ -5,17 +5,17 @@
 <mapper namespace="com.power.mapper.RoleMapper">
 
     <resultMap id="BaseResultMap" type="com.power.domain.entity.Role">
-            <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="roleName" column="role_name" jdbcType="VARCHAR"/>
-            <result property="roleKey" column="role_key" jdbcType="VARCHAR"/>
-            <result property="roleSort" column="role_sort" jdbcType="INTEGER"/>
-            <result property="status" column="status" jdbcType="CHAR"/>
-            <result property="delFlag" column="del_flag" jdbcType="CHAR"/>
-            <result property="createBy" column="create_by" jdbcType="BIGINT"/>
-            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
-            <result property="updateBy" column="update_by" jdbcType="BIGINT"/>
-            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
-            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="roleName" column="role_name" jdbcType="VARCHAR"/>
+        <result property="roleKey" column="role_key" jdbcType="VARCHAR"/>
+        <result property="roleSort" column="role_sort" jdbcType="INTEGER"/>
+        <result property="status" column="status" jdbcType="CHAR"/>
+        <result property="delFlag" column="del_flag" jdbcType="CHAR"/>
+        <result property="createBy" column="create_by" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="BIGINT"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">

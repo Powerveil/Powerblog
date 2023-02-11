@@ -19,4 +19,15 @@ public interface MenuService extends IService<Menu> {
     List<Menu> selectRouterMenuTreeByUserId(Long userId);
 
     ResponseResult listMenu(String status, String menuName);
+
+    ResponseResult addMenu(Menu menu);
+
+    ResponseResult getMenuById(Long id);
+
+    ResponseResult updateMenu(Menu menu);
+
+    ResponseResult deleteMenuById(Long id);
+
+
+    ResponseResult treeSelect();
 }

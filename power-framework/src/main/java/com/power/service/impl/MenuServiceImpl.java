@@ -6,14 +6,17 @@ import com.power.constants.SystemConstants;
 import com.power.domain.ResponseResult;
 import com.power.domain.dto.MenuDto;
 import com.power.domain.entity.Menu;
+import com.power.domain.entity.RoleMenu;
 import com.power.domain.vo.ListMenuVo;
 import com.power.domain.vo.MenuListVo;
-import com.power.domain.vo.MenuVo;
+import com.power.domain.vo.RoleMenuVo;
 import com.power.enums.AppHttpCodeEnum;
 import com.power.service.MenuService;
 import com.power.mapper.MenuMapper;
+import com.power.service.RoleMenuService;
 import com.power.utils.BeanCopyUtils;
 import com.power.utils.SecurityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -30,6 +33,9 @@ import java.util.stream.Collectors;
 @Service
 public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     implements MenuService{
+
+    @Autowired
+    private RoleMenuService roleMenuService;
 
     @Override
     public List<String> selectPermsByUserId(Long id) {
@@ -139,6 +145,25 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
             menuListVo.setChildren(children);
         }
         return ResponseResult.okResult(menuListVos);
+    }
+
+    @Override
+    public ResponseResult roleMenuTreeselect(Long id) {
+        ResponseResult result = treeSelect();
+        List<MenuListVo> menus = (List<MenuListVo>) result.getData();
+
+        LambdaQueryWrapper<RoleMenu> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(RoleMenu::getRoleId, id);
+
+        List<Long> checkedKeys = roleMenuService.list(queryWrapper).stream()
+                .map(RoleMenu::getMenuId).collect(Collectors.toList());
+
+        RoleMenuVo roleMenuVo = new RoleMenuVo();
+        roleMenuVo.setMenus(menus);
+        roleMenuVo.setCheckedKeys(checkedKeys);
+
+
+        return ResponseResult.okResult(roleMenuVo);
     }
 
     private List<MenuListVo> getChildren2(Long id) {

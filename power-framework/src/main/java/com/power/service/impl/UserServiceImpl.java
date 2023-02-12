@@ -1,10 +1,13 @@
 package com.power.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.power.domain.ResponseResult;
 import com.power.domain.entity.User;
 import com.power.domain.entity.UserRole;
+import com.power.domain.vo.ListUserVo;
+import com.power.domain.vo.PageVo;
 import com.power.domain.vo.UserInfoVo;
 import com.power.enums.AppHttpCodeEnum;
 import com.power.exception.SystemException;
@@ -144,6 +147,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user.setPassword(encodePassword);
         save(user);
         return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult userList(Long pageNum, Long pageSize, String userName, String phonenumber, String status) {
+        Page<User> pageInfo = new Page<>(pageNum, pageSize);
+
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(!Objects.isNull(userName), User::getUserName, userName);
+        queryWrapper.eq(!Objects.isNull(phonenumber), User::getPhonenumber, phonenumber);
+        queryWrapper.eq(!Objects.isNull(status), User::getStatus, status);
+
+        page(pageInfo, queryWrapper);
+        List<User> records = pageInfo.getRecords();
+        List<ListUserVo> listUserVos = BeanCopyUtils.copyBeanList(records, ListUserVo.class);
+
+        PageVo pageVo = new PageVo(listUserVos, pageInfo.getTotal());
+        return ResponseResult.okResult(pageVo);
     }
 
     private boolean emailExist(String email) {

@@ -30,4 +30,6 @@ public interface MenuService extends IService<Menu> {
 
 
     ResponseResult treeSelect();
+
+    ResponseResult roleMenuTreeselect(Long id);
 }

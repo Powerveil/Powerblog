@@ -7,6 +7,7 @@ import com.power.constants.SystemConstants;
 import com.power.domain.ResponseResult;
 import com.power.domain.dto.AddRoleDto;
 import com.power.domain.dto.RoleChangeStatusDto;
+import com.power.domain.dto.UpdateRoleDto;
 import com.power.domain.entity.RoleMenu;
 import com.power.domain.entity.User;
 import com.power.domain.entity.UserRole;
@@ -113,6 +114,30 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     @Override
     public ResponseResult deleteById(Long id) {
         removeById(id);
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult updateRole(UpdateRoleDto updateRoleDto) {
+        Role role = BeanCopyUtils.copyBean(updateRoleDto, Role.class);
+        LambdaQueryWrapper<Role> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Role::getId, role.getId());
+        update(role, queryWrapper);
+
+        RoleMenu roleMenu = new RoleMenu();
+        roleMenu.setRoleId(role.getId());
+        LambdaQueryWrapper<RoleMenu> queryWrapper2 = new LambdaQueryWrapper<>();
+
+        //先删除再更新
+        roleMenuService.removeById(role.getId());
+
+
+        List<Long> menuIds = updateRoleDto.getMenuIds();
+        for (Long menuId : menuIds) {
+            roleMenu.setMenuId(menuId);
+            roleMenuService.save(roleMenu);
+        }
+
         return ResponseResult.okResult();
     }
 

@@ -3,6 +3,7 @@ package com.power.controller;
 import com.power.domain.ResponseResult;
 import com.power.domain.dto.AddRoleDto;
 import com.power.domain.dto.RoleChangeStatusDto;
+import com.power.domain.dto.UpdateRoleDto;
 import com.power.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +41,12 @@ public class RoleController {
     @GetMapping("/{id}")
     public ResponseResult getRole(@PathVariable("id") Long id) {
         return roleService.getRole(id);
+    }
+
+
+    @PutMapping
+    public ResponseResult updateRole(UpdateRoleDto updateRoleDto) {
+        return roleService.updateRole(updateRoleDto);
     }
 
 }

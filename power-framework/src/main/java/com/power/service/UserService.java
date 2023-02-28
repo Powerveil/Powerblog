@@ -1,6 +1,7 @@
 package com.power.service;
 
 import com.power.domain.ResponseResult;
+import com.power.domain.dto.AddUserDto;
 import com.power.domain.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -18,4 +19,6 @@ public interface UserService extends IService<User> {
     ResponseResult register(User user);
 
     ResponseResult userList(Long pageNum, Long pageSize, String userName, String phonenumber, String status);
+
+    ResponseResult addUser(AddUserDto addUserDto);
 }

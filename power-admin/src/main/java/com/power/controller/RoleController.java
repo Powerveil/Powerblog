@@ -49,4 +49,10 @@ public class RoleController {
         return roleService.updateRole(updateRoleDto);
     }
 
+
+    @GetMapping("/listAllRole")
+    public ResponseResult listAllRole() {
+        return roleService.listAllRole();
+    }
+
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.power.domain.ResponseResult;
+import com.power.domain.dto.AddUserDto;
 import com.power.domain.entity.User;
 import com.power.domain.entity.UserRole;
 import com.power.domain.vo.ListUserVo;
@@ -17,6 +18,7 @@ import com.power.mapper.UserMapper;
 import com.power.utils.BeanCopyUtils;
 import com.power.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -164,6 +166,49 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
         PageVo pageVo = new PageVo(listUserVos, pageInfo.getTotal());
         return ResponseResult.okResult(pageVo);
+    }
+
+    @Override
+    public ResponseResult addUser(AddUserDto addUserDto) {
+
+        // 用戶名不能為空
+        if (!StringUtils.hasText(addUserDto.getUserName())) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.USERNAME_NOT_NULL);
+        }
+
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        //用户名必须之前未存在
+        queryWrapper.eq(!StringUtils.hasText(addUserDto.getUserName()), User::getUserName, addUserDto.getUserName());
+        //手机号必须之前未存在
+        queryWrapper.eq(!StringUtils.hasText(addUserDto.getPhonenumber()), User::getPhonenumber, addUserDto.getPhonenumber());
+        //邮箱必须之前未存在
+        queryWrapper.eq(!StringUtils.hasText(addUserDto.getEmail()), User::getEmail, addUserDto.getEmail());
+
+        if (count(queryWrapper) > 0) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.USERNAME_EXIST);// TODO 这里不符合要求
+        }
+
+        //密碼需要加密存儲
+        String encode = passwordEncoder.encode(addUserDto.getPassword());
+        addUserDto.setPassword(encode);
+
+
+        User user = BeanCopyUtils.copyBean(addUserDto, User.class);
+        save(user);
+        LambdaQueryWrapper<User> queryWrapper1 = new LambdaQueryWrapper<>();
+        queryWrapper1.eq(StringUtils.hasText(addUserDto.getUserName()), User::getUserName, addUserDto.getUserName());
+
+        Long userId = getOne(queryWrapper1).getId();
+
+        List<Long> roleIds = addUserDto.getRoleIds();
+
+        UserRole userRole = new UserRole();
+        userRole.setUserId(userId);
+        for (Long roleId : roleIds) {
+            userRole.setRoleId(roleId);
+            userRoleService.save(userRole);
+        }
+        return ResponseResult.okResult();
     }
 
     private boolean emailExist(String email) {

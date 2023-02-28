@@ -11,6 +11,7 @@ import com.power.domain.dto.UpdateRoleDto;
 import com.power.domain.entity.RoleMenu;
 import com.power.domain.entity.User;
 import com.power.domain.entity.UserRole;
+import com.power.domain.vo.ListAllRoleVo;
 import com.power.domain.vo.RoleListVo;
 import com.power.domain.entity.Role;
 import com.power.domain.vo.PageVo;
@@ -20,6 +21,7 @@ import com.power.service.RoleMenuService;
 import com.power.service.RoleService;
 import com.power.mapper.RoleMapper;
 import com.power.utils.BeanCopyUtils;
+import kotlin.jvm.internal.Lambda;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -139,6 +141,15 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
         }
 
         return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult listAllRole() {
+        LambdaQueryWrapper<Role> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Role::getStatus, SystemConstants.STATUS_NORMAL);
+        List<Role> list = list(queryWrapper);
+//        List<ListAllRoleVo> listAllRoleVos = BeanCopyUtils.copyBeanList(list, ListAllRoleVo.class);
+        return ResponseResult.okResult(list);
     }
 
     @Override

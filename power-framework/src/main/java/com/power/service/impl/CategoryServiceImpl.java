@@ -1,12 +1,16 @@
 package com.power.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.power.constants.SystemConstants;
 import com.power.domain.ResponseResult;
+import com.power.domain.dto.AddCategoryDto;
 import com.power.domain.entity.Article;
 import com.power.domain.entity.Category;
+import com.power.domain.vo.CategoryPageVo;
 import com.power.domain.vo.CategoryVo;
+import com.power.domain.vo.PageVo;
 import com.power.service.ArticleService;
 import com.power.service.CategoryService;
 import com.power.mapper.CategoryMapper;
@@ -15,18 +19,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
-* @author power
-* @description 针对表【power_category(分类表)】的数据库操作Service实现
-* @createDate 2023-01-08 17:06:25
-*/
+ * @author power
+ * @description 针对表【power_category(分类表)】的数据库操作Service实现
+ * @createDate 2023-01-08 17:06:25
+ */
 @Service
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
-    implements CategoryService{
+        implements CategoryService {
 
     @Autowired
     private ArticleService articleService;
@@ -62,6 +66,35 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         List<Category> list = list(wrapper);
         List<CategoryVo> categoryVos = BeanCopyUtils.copyBeanList(list, CategoryVo.class);
         return categoryVos;
+    }
+
+    @Override
+    public ResponseResult categoryList(Long pageNum, Long pageSize, String name, String status) {
+        Page<Category> pageInfo = new Page(pageNum, pageSize);
+
+        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
+        if (SystemConstants.STATUS_NORMAL.equals(status) || SystemConstants.STATUS_ABNORMAL.equals(status)) {
+            queryWrapper.eq(Category::getStatus, status);
+        }
+        queryWrapper.like(!Objects.isNull(name), Category::getName, name);
+
+        page(pageInfo, queryWrapper);
+
+        List<Category> records = pageInfo.getRecords();
+        List<CategoryPageVo> categoryPageVos = BeanCopyUtils.copyBeanList(records, CategoryPageVo.class);
+
+        PageVo pageVo = new PageVo();
+        pageVo.setRows(categoryPageVos);
+        pageVo.setTotal(pageInfo.getTotal());
+
+        return ResponseResult.okResult(pageVo);
+    }
+
+    @Override
+    public ResponseResult addCategory(AddCategoryDto addCategoryDto) {
+        Category category = BeanCopyUtils.copyBean(addCategoryDto, Category.class);
+        save(category);
+        return ResponseResult.okResult();
     }
 }
 

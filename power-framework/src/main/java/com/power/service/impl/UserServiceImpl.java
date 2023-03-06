@@ -5,18 +5,22 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.power.domain.ResponseResult;
 import com.power.domain.dto.AddUserDto;
+import com.power.domain.dto.UpdateUserDto;
+import com.power.domain.entity.LoginUser;
+import com.power.domain.entity.Role;
 import com.power.domain.entity.User;
 import com.power.domain.entity.UserRole;
-import com.power.domain.vo.ListUserVo;
-import com.power.domain.vo.PageVo;
-import com.power.domain.vo.UserInfoVo;
+import com.power.domain.vo.*;
 import com.power.enums.AppHttpCodeEnum;
 import com.power.exception.SystemException;
+import com.power.service.RoleService;
 import com.power.service.UserRoleService;
 import com.power.service.UserService;
 import com.power.mapper.UserMapper;
 import com.power.utils.BeanCopyUtils;
 import com.power.utils.SecurityUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +30,9 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author power
@@ -33,6 +40,7 @@ import java.util.Objects;
  * @createDate 2023-01-12 16:47:58
  */
 @Service
+@Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         implements UserService {
 
@@ -43,6 +51,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Autowired
     private UserRoleService userRoleService;
+
+    @Autowired
+    private RoleService roleService;
 
     @Override
     public ResponseResult userInfo() {
@@ -170,23 +181,55 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public ResponseResult addUser(AddUserDto addUserDto) {
-
         // 用戶名不能為空
         if (!StringUtils.hasText(addUserDto.getUserName())) {
             return ResponseResult.errorResult(AppHttpCodeEnum.USERNAME_NOT_NULL);
         }
-
-        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        List<User> list = list();
         //用户名必须之前未存在
-        queryWrapper.eq(!StringUtils.hasText(addUserDto.getUserName()), User::getUserName, addUserDto.getUserName());
-        //手机号必须之前未存在
-        queryWrapper.eq(!StringUtils.hasText(addUserDto.getPhonenumber()), User::getPhonenumber, addUserDto.getPhonenumber());
-        //邮箱必须之前未存在
-        queryWrapper.eq(!StringUtils.hasText(addUserDto.getEmail()), User::getEmail, addUserDto.getEmail());
-
-        if (count(queryWrapper) > 0) {
-            return ResponseResult.errorResult(AppHttpCodeEnum.USERNAME_EXIST);// TODO 这里不符合要求
+        Set<String> userNameSet = list.stream()
+                .map(new Function<User, String>() {
+                    @Override
+                    public String apply(User user) {
+                        return user.getUserName();
+                    }
+                }).collect(Collectors.toSet());
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        if (userNameSet.contains(addUserDto.getUserName())) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.USERNAME_EXIST);
         }
+//        queryWrapper.eq(!StringUtils.hasText(addUserDto.getUserName()), User::getUserName, addUserDto.getUserName());
+
+        //手机号必须之前未存在
+//        queryWrapper.eq(!StringUtils.hasText(addUserDto.getPhonenumber()), User::getPhonenumber, addUserDto.getPhonenumber());
+
+        Set<String> phonenumberSet = list.stream()
+                .map(new Function<User, String>() {
+                    @Override
+                    public String apply(User user) {
+                        return user.getPhonenumber();
+                    }
+                }).collect(Collectors.toSet());
+        if (phonenumberSet.contains(addUserDto.getPhonenumber())) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.PHONENUMBER_EXIST);
+        }
+        //邮箱必须之前未存在
+//        queryWrapper.eq(!StringUtils.hasText(addUserDto.getEmail()), User::getEmail, addUserDto.getEmail());
+
+        Set<String> emailSet = list.stream()
+                .map(new Function<User, String>() {
+                    @Override
+                    public String apply(User user) {
+                        return user.getEmail();
+                    }
+                }).collect(Collectors.toSet());
+        if (emailSet.contains(addUserDto.getEmail())) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.EMAIL_EXIST);
+        }
+
+//        if (count(queryWrapper) > 0) {
+//            return ResponseResult.errorResult(AppHttpCodeEnum.USERNAME_EXIST);
+//        }
 
         //密碼需要加密存儲
         String encode = passwordEncoder.encode(addUserDto.getPassword());
@@ -211,6 +254,59 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return ResponseResult.okResult();
     }
 
+    @Override
+    public ResponseResult userDelete(Long id) {
+        Long loginUserId = SecurityUtils.getUserId();
+        if (loginUserId.equals(id)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.DELETE_ERROR);
+        }
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult getUserById(Long id) {
+        LambdaQueryWrapper<UserRole> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(!Objects.isNull(id), UserRole::getUserId, id);
+        List<UserRole> userRoles = userRoleService.list(queryWrapper);
+        // roleIds
+        List<Long> roleIds = userRoles.stream()
+                .map(UserRole::getRoleId).collect(Collectors.toList());
+        log.info("roleIds:{}", roleIds);
+
+        ResponseResult result = roleService.listAllRole();
+        List<Role> roles = (List<Role>) result.getData();
+        log.info("roles:{}", roles);
+
+        User user = getById(id);
+        log.info("user:{}", user);
+        GetUserVo getUserVo = BeanCopyUtils.copyBean(user, GetUserVo.class);
+
+        UserDetailsVo userDetailsVo = BeanCopyUtils.copyBean(roleIds, UserDetailsVo.class);
+        userDetailsVo.setRoleIds(roleIds);
+        userDetailsVo.setRoles(roles);
+        userDetailsVo.setUser(getUserVo);
+
+        return ResponseResult.okResult(userDetailsVo);
+    }
+
+    @Override
+    public ResponseResult updateUser(UpdateUserDto updateUserDto) {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(!Objects.isNull(updateUserDto.getId()), User::getId, updateUserDto.getId());
+        User user = BeanCopyUtils.copyBean(updateUserDto, User.class);
+        updateById(user);
+        Long userId = updateUserDto.getId();
+        UserRole userRole = new UserRole();
+        userRole.setUserId(userId);
+
+        List<Long> roleIds = updateUserDto.getRoleIds();
+        for (Long roleId : roleIds) {
+            userRole.setRoleId(roleId);
+            userRoleService.save(userRole);
+        }
+        return ResponseResult.okResult();
+    }
+
     private boolean emailExist(String email) {
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(!Objects.isNull(email), User::getEmail, email);
@@ -228,6 +324,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper.eq(!Objects.isNull(userName), User::getUserName, userName);
         return count(queryWrapper) > 0;
     }
+
+//    private List<Long> getRoleIds(Long userId) {
+//        LambdaQueryWrapper<UserRole> queryWrapper = new LambdaQueryWrapper<>();
+//        queryWrapper.eq(!Objects.isNull(userId), UserRole::getUserId, userId);
+//        List<UserRole> userRoles = userRoleService.list(queryWrapper);
+//        List<Long> roleIds = userRoles.stream()
+//                .map(new Function<UserRole, Long>() {
+//                    @Override
+//                    public Long apply(UserRole userRole) {
+//                        return userRole.getRoleId();
+//                    }
+//                }).collect(Collectors.toList());
+//        return roleIds;
+//    }
 }
 
 

@@ -27,6 +27,6 @@ mybatis-plus:
       id-type: auto
 
 oss:
-  accessKey: jAXdew6kmEe1TE9mZGRdKNPKnN0lK4xoED1BQvyB
-  secretKey: e6bQX8MeNw6GfCHC_bnUH4jZioyY0NoqEwunWfnA
+  accessKey: xxxx
+  secretKey: xxxx
   bucket: power-blog

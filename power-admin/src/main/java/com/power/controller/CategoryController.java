@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSON;
 import com.power.domain.ResponseResult;
 import com.power.domain.dto.AddCategoryDto;
+import com.power.domain.dto.UpdateCategoryDto;
 import com.power.domain.entity.Category;
 import com.power.domain.vo.CategoryVo;
 import com.power.domain.vo.ExcelCategoryVo;
@@ -71,5 +72,19 @@ public class CategoryController {
         return categoryService.addCategory(addCategoryDto);
     }
 
+    @GetMapping("/{id}")
+    public ResponseResult getCategoryById(@PathVariable("id") Long id) {
+        return categoryService.getCategoryById(id);
+    }
+
+    @PutMapping
+    public ResponseResult updateCategory(@RequestBody UpdateCategoryDto updateCategoryDto) {
+        return categoryService.updateCategory(updateCategoryDto);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseResult deleteCategory(@PathVariable("id") Long id) {
+        return categoryService.deleteCategory(id);
+    }
 
 }

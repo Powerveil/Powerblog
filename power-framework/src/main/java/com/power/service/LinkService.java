@@ -1,8 +1,10 @@
 package com.power.service;
 
 import com.power.domain.ResponseResult;
+import com.power.domain.dto.AddLinkDto;
 import com.power.domain.entity.Link;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.power.domain.vo.PageListVo;
 
 /**
 * @author power
@@ -12,4 +14,14 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface LinkService extends IService<Link> {
 
     ResponseResult getAllLink();
+
+    ResponseResult getPageListLink(Long pageNum, Long pageSize, String name, String status);
+
+    ResponseResult addLink(AddLinkDto addLinkDto);
+
+    ResponseResult getLinkById(Long id);
+
+    ResponseResult updateLinkById(PageListVo updateDto);
+
+    ResponseResult deleteLinkById(Long id);
 }

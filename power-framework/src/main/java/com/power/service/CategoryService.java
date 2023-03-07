@@ -2,6 +2,7 @@ package com.power.service;
 
 import com.power.domain.ResponseResult;
 import com.power.domain.dto.AddCategoryDto;
+import com.power.domain.dto.UpdateCategoryDto;
 import com.power.domain.entity.Category;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.power.domain.vo.CategoryVo;
@@ -22,4 +23,10 @@ public interface CategoryService extends IService<Category> {
     ResponseResult categoryList(Long pageNum, Long pageSize, String name, String status);
 
     ResponseResult addCategory(AddCategoryDto addCategoryDto);
+
+    ResponseResult getCategoryById(Long id);
+
+    ResponseResult updateCategory(UpdateCategoryDto updateCategoryDto);
+
+    ResponseResult deleteCategory(Long id);
 }

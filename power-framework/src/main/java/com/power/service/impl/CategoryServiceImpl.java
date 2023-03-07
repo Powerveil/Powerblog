@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.power.constants.SystemConstants;
 import com.power.domain.ResponseResult;
 import com.power.domain.dto.AddCategoryDto;
+import com.power.domain.dto.UpdateCategoryDto;
 import com.power.domain.entity.Article;
 import com.power.domain.entity.Category;
 import com.power.domain.vo.CategoryPageVo;
@@ -94,6 +95,26 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
     public ResponseResult addCategory(AddCategoryDto addCategoryDto) {
         Category category = BeanCopyUtils.copyBean(addCategoryDto, Category.class);
         save(category);
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult getCategoryById(Long id) {
+        Category category = getById(id);
+        CategoryPageVo categoryPageVo = BeanCopyUtils.copyBean(category, CategoryPageVo.class);
+        return ResponseResult.okResult(categoryPageVo);
+    }
+
+    @Override
+    public ResponseResult updateCategory(UpdateCategoryDto updateCategoryDto) {
+        Category category = BeanCopyUtils.copyBean(updateCategoryDto, Category.class);
+        updateById(category);
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult deleteCategory(Long id) {
+        removeById(id);
         return ResponseResult.okResult();
     }
 }

@@ -4,7 +4,7 @@
 
 # 前台管理
 
-![image-20230307161214289](images\image-20230307161214289.png)
+![image-20230307161214289](https://user-images.githubusercontent.com/94041197/223987262-3c053afb-1009-4487-b72d-d262ba1d194a.png)
 
 ## 首页
 

@@ -2,8 +2,10 @@ package com.power.job;
 
 import com.power.constants.SystemConstants;
 import com.power.domain.entity.Article;
+import com.power.handler.mybatisplus.MyMetaObjectHandler;
 import com.power.service.ArticleService;
 import com.power.utils.RedisCache;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -11,6 +13,9 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -18,6 +23,7 @@ import java.util.stream.Collectors;
  * @Date 2023/1/19 15:29
  */
 @Component
+@Slf4j
 public class UpdateViewCountJob {
 
     @Autowired
@@ -25,6 +31,7 @@ public class UpdateViewCountJob {
 
     @Autowired
     private ArticleService articleService;
+
 
 //    @Scheduled(cron = "0/5 * * * * ?")
 //    public void updateViewCount() {
@@ -61,16 +68,26 @@ public class UpdateViewCountJob {
 //
 //    }
 
-    @Scheduled(cron = "0/20 * * * * ?")
+    @Scheduled(cron = "0/10 * * * * ?")
     public void updateViewCount() {
         //获取redis中的浏览量
         Map<String, Integer> viewCountMap = redisCache.getCacheMap("article:viewCount");
-
-        List<Article> articles = viewCountMap.entrySet()
+        //获取Id集合
+        List<Long> collect = viewCountMap.keySet()
                 .stream()
-                .map(entry -> new Article(Long.valueOf(entry.getKey()), entry.getValue().longValue()))
+                .map(Long::valueOf)
                 .collect(Collectors.toList());
+        //从数据库查到的数据
+        List<Article> articles = new ArrayList<>(articleService.listByIds(collect));
+        //这个主要简化更改内容的，如果直接使用articles也可以，但是很多无效修改
+        List<Article> articles1 = new ArrayList<>();
+        for (Article temp : articles) {
+            Article article = new Article(temp.getId(), temp.getViewCount());
+            article.setUpdateBy(temp.getUpdateBy());
+            article.setUpdateTime(temp.getUpdateTime());
+            articles1.add(article);
+        }
         //更新到数据库中
-        articleService.updateBatchById(articles);
+        articleService.updateBatchById(articles1);
     }
 }

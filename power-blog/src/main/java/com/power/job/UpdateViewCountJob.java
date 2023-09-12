@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -96,6 +93,8 @@ public class UpdateViewCountJob {
         //获取redis中的浏览量
         Map<String, Integer> viewCountMap = redisCache.getCacheMap("article:viewCount");
         //更新到数据库中
-        articleService.updateViewCount(viewCountMap);
+        if (Objects.isNull(viewCountMap)) {
+            articleService.updateViewCount(viewCountMap);
+        }
     }
 }

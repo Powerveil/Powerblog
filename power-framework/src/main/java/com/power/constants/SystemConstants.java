@@ -93,4 +93,10 @@ public class SystemConstants
 
 
     public static final String ADMIN = "1";
+
+    /**
+     * 删除标志（0代表未删除，1代表已删除）
+     */
+    public static final Integer ARTICLE_IS_NOT_DELETE = 0;
+    public static final Integer ARTICLE_IS_DELETE = 1;
 }

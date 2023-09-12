@@ -5,6 +5,8 @@ import com.power.domain.dto.AddArticleDto;
 import com.power.domain.entity.Article;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.Map;
+
 /**
 * @author power
 * @description 针对表【power_article(文章表)】的数据库操作Service
@@ -18,7 +20,7 @@ public interface ArticleService extends IService<Article> {
 
     ResponseResult getArticleDetail(Integer id);
 
-    ResponseResult updateViewCount(Integer id);
+    ResponseResult updateRedisViewCount(Integer id);
 
     ResponseResult add(AddArticleDto article);
 
@@ -27,4 +29,6 @@ public interface ArticleService extends IService<Article> {
     ResponseResult articleDetails(Long id);
 
     ResponseResult updateArticle(Article article);
+
+    void updateViewCount(Map<String, Integer> viewCountMap);
 }

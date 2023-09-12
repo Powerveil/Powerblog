@@ -43,7 +43,7 @@ public class ArticleController {
 
     @PutMapping("/updateViewCount/{id}")
     public ResponseResult updateViewCount(@PathVariable("id") Integer id) {
-        return articleService.updateViewCount(id);
+        return articleService.updateRedisViewCount(id);
     }
 
 }

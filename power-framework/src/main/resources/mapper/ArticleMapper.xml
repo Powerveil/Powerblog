@@ -29,6 +29,18 @@
         is_comment,create_by,create_time,
         update_by,update_time,del_flag
     </sql>
+    <update id="updateViewCount">
+        <if test="map != null and map.size > 0">
+            <foreach item="value" index="key" collection="map">
+                <if test="key != null and key != '' and value != null">
+                    update power_article
+                    set view_count = #{value}
+                    where id = #{key}
+                    and del_flag = 0;
+                </if>
+            </foreach>
+        </if>
+    </update>
 
     <select id="getTags" resultType="java.lang.String">
         select power_tag.name

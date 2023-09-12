@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -144,7 +145,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     }
 
     @Override
-    public ResponseResult updateViewCount(Integer id) {
+    public ResponseResult updateRedisViewCount(Integer id) {
         redisCache.incrementCacheMapValue(SystemConstants.ARTICLE_VIEW_COUNT_KEY, id.toString(), 1);
         return ResponseResult.okResult();
     }
@@ -213,6 +214,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         return ResponseResult.okResult();
     }
 
+    @Override
+    public void updateViewCount(Map<String, Integer> viewCountMap) {
+        baseMapper.updateViewCount(viewCountMap);
+    }
 
 }
 

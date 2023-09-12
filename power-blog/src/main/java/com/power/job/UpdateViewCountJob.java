@@ -68,26 +68,34 @@ public class UpdateViewCountJob {
 //
 //    }
 
+//    @Scheduled(cron = "0/10 * * * * ?")
+//    public void updateViewCount() {
+//        //获取redis中的浏览量
+//        Map<String, Integer> viewCountMap = redisCache.getCacheMap("article:viewCount");
+//        //获取Id集合
+//        List<Long> collect = viewCountMap.keySet()
+//                .stream()
+//                .map(Long::valueOf)
+//                .collect(Collectors.toList());
+//        //从数据库查到的数据
+//        List<Article> articles = new ArrayList<>(articleService.listByIds(collect));
+//        //这个主要简化更改内容的，如果直接使用articles也可以，但是很多无效修改
+//        List<Article> articles1 = new ArrayList<>();
+//        for (Article temp : articles) {
+//            Article article = new Article(temp.getId(), temp.getViewCount());
+//            article.setUpdateBy(temp.getUpdateBy());
+//            article.setUpdateTime(temp.getUpdateTime());
+//            articles1.add(article);
+//        }
+//        //更新到数据库中
+//        articleService.updateBatchById(articles1);
+//    }
+
     @Scheduled(cron = "0/10 * * * * ?")
     public void updateViewCount() {
         //获取redis中的浏览量
         Map<String, Integer> viewCountMap = redisCache.getCacheMap("article:viewCount");
-        //获取Id集合
-        List<Long> collect = viewCountMap.keySet()
-                .stream()
-                .map(Long::valueOf)
-                .collect(Collectors.toList());
-        //从数据库查到的数据
-        List<Article> articles = new ArrayList<>(articleService.listByIds(collect));
-        //这个主要简化更改内容的，如果直接使用articles也可以，但是很多无效修改
-        List<Article> articles1 = new ArrayList<>();
-        for (Article temp : articles) {
-            Article article = new Article(temp.getId(), temp.getViewCount());
-            article.setUpdateBy(temp.getUpdateBy());
-            article.setUpdateTime(temp.getUpdateTime());
-            articles1.add(article);
-        }
         //更新到数据库中
-        articleService.updateBatchById(articles1);
+        articleService.updateViewCount(viewCountMap);
     }
 }

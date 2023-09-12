@@ -3,9 +3,11 @@ package com.power.mapper;
 import com.power.domain.entity.Article;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.mybatis.spring.annotation.MapperScan;
 
 import java.util.List;
+import java.util.Map;
 
 /**
 * @author power
@@ -16,6 +18,8 @@ import java.util.List;
 public interface ArticleMapper extends BaseMapper<Article> {
 
     List<String> getTags(Long id);
+
+    void updateViewCount(@Param("map") Map<String, Integer> viewCountMap);
 }
 
 

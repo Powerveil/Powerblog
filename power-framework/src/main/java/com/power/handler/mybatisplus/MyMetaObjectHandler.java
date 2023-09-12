@@ -39,14 +39,16 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void updateFill(MetaObject metaObject) {
         // 如果updateTime有数据就不填充了
-        if (Objects.isNull(metaObject.getValue("updateTime"))) {
-            log.info("updateTime is null");
-            this.setFieldValByName("updateTime", new Date(), metaObject);
-        }
+        this.setFieldValByName("updateTime", new Date(), metaObject);
+//        if (Objects.isNull(metaObject.getValue("updateTime"))) {
+//            log.info("updateTime is null");
+//            this.setFieldValByName("updateTime", new Date(), metaObject);
+//        }
         // 如果updateBy有数据就不填充了
-        if (Objects.isNull(metaObject.getValue("updateBy"))) {
-            log.info("updateBy is null");
-            this.setFieldValByName("updateBy", SecurityUtils.getUserId(), metaObject);
-        }
+        this.setFieldValByName("updateBy", SecurityUtils.getUserId(), metaObject);
+//        if (Objects.isNull(metaObject.getValue("updateBy"))) {
+//            log.info("updateBy is null");
+//            this.setFieldValByName("updateBy", SecurityUtils.getUserId(), metaObject);
+//        }
     }
 }

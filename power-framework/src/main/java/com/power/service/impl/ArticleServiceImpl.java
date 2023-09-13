@@ -21,8 +21,10 @@ import com.power.utils.RedisCache;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -155,20 +157,27 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         return ResponseResult.okResult();
     }
 
+    @Transactional
     @Override
     public ResponseResult add(AddArticleDto articleDto) {
         //添加 博客
         Article article = BeanCopyUtils.copyBean(articleDto, Article.class);
         save(article);
 
-
         List<ArticleTag> articleTags = articleDto.getTags().stream()
                 .map(tagId -> new ArticleTag(article.getId(), tagId))
                 .collect(Collectors.toList());
 
         //添加 博客和标签的关联
-        articleTagService.saveBatch(articleTags);
-        return ResponseResult.okResult();
+        if (articleTagService.saveBatch(articleTags)) {
+            //添加viewCount到 redis中
+            Map<String, Integer> viewCountMap = new HashMap<>();
+            viewCountMap.put(article.getId().toString(), article.getViewCount().intValue());
+            redisCache.setCacheMap(SystemConstants.ARTICLE_VIEW_COUNT_KEY, viewCountMap);
+            ResponseResult.okResult();
+        }
+
+        return ResponseResult.errorResult(AppHttpCodeEnum.ADD_ERROR);
     }
 
     @Override
@@ -216,12 +225,27 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public ResponseResult updateArticle(Article article) {
         updateById(article);
-        return ResponseResult.okResult();
+        if (article.getDelFlag().equals(SystemConstants.ARTICLE_IS_DELETE)) {
+            // 删除redis中viewCount
+            redisCache.delCacheMapValue(SystemConstants.ARTICLE_VIEW_COUNT_KEY, article.getId().toString());
+            ResponseResult.okResult();
+        }
+        return ResponseResult.errorResult(AppHttpCodeEnum.UPDATE_ERROR);
     }
 
     @Override
     public void updateViewCount(Map<String, Integer> viewCountMap) {
         baseMapper.updateViewCount(viewCountMap);
+    }
+
+    @Override
+    public ResponseResult deleteById(Long id) {
+        if (removeById(id)) {
+            // 删除redis中viewCount
+            redisCache.delCacheMapValue(SystemConstants.ARTICLE_VIEW_COUNT_KEY, id.toString());
+            return ResponseResult.okResult();
+        }
+        return ResponseResult.errorResult(AppHttpCodeEnum.DELETE_ERROR);
     }
 
 }

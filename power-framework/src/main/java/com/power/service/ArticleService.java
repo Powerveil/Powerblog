@@ -31,4 +31,6 @@ public interface ArticleService extends IService<Article> {
     ResponseResult updateArticle(Article article);
 
     void updateViewCount(Map<String, Integer> viewCountMap);
+
+    ResponseResult deleteById(Long id);
 }

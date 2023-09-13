@@ -92,8 +92,9 @@ public class UpdateViewCountJob {
     public void updateViewCount() {
         //获取redis中的浏览量
         Map<String, Integer> viewCountMap = redisCache.getCacheMap("article:viewCount");
+        log.info("viewCountMap={}", viewCountMap);
         //更新到数据库中
-        if (Objects.isNull(viewCountMap)) {
+        if (!Objects.isNull(viewCountMap)) {
             articleService.updateViewCount(viewCountMap);
         }
     }

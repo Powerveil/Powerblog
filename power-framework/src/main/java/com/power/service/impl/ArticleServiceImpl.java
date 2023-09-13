@@ -146,6 +146,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Override
     public ResponseResult updateRedisViewCount(Integer id) {
+        Integer viewCount = redisCache.getCacheMapValue(SystemConstants.ARTICLE_VIEW_COUNT_KEY, id.toString());
+        // 防止已经被删除的数据存到redis中，导致错误的更新修改旧数据
+        if (Objects.isNull(viewCount)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.REDIS_KEY_NOT_EXIST);
+        }
         redisCache.incrementCacheMapValue(SystemConstants.ARTICLE_VIEW_COUNT_KEY, id.toString(), 1);
         return ResponseResult.okResult();
     }

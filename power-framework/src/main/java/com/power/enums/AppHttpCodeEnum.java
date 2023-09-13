@@ -28,7 +28,8 @@ public enum AppHttpCodeEnum {
     UPDATE_MENU_PARENT_ERROR(519, "修改菜单'写博文'失败，上级菜单不能选择自己"),
     UPDATE_MENU_CHILDREN_ERROR(520, "存在子菜单不允许删除"),
     ID_NOT_NULL(521, "id参数不能为空"),
-    STATUS_NOT_NULL(522, "status不能为空");
+    STATUS_NOT_NULL(522, "status不能为空"),
+    REDIS_KEY_NOT_EXIST(523, "key不存在");
     int code;
     String msg;
 

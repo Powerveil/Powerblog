@@ -36,3 +36,5 @@ third-party/nacos/data/
 third-party/nacos/work/
 
 file/
+
+application-prod.yml

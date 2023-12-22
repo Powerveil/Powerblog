@@ -2,6 +2,10 @@ package com.power.mapper;
 
 import com.power.domain.entity.UserRole;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
 * @author power
@@ -9,8 +13,11 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @createDate 2023-02-08 15:46:52
 * @Entity com.power.domain.entity.UserRole
 */
+@Mapper
 public interface UserRoleMapper extends BaseMapper<UserRole> {
 
+    Boolean saveUserAndRole(@Param("userId") Long userId,
+                            @Param("roleIds") List<Long> roleIds);
 }
 
 

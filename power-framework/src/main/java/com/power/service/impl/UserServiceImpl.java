@@ -13,6 +13,7 @@ import com.power.domain.entity.UserRole;
 import com.power.domain.vo.*;
 import com.power.enums.AppHttpCodeEnum;
 import com.power.exception.SystemException;
+import com.power.mapper.UserRoleMapper;
 import com.power.service.RoleService;
 import com.power.service.UserRoleService;
 import com.power.service.UserService;
@@ -53,6 +54,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private UserRoleService userRoleService;
 
     @Autowired
+    private UserRoleMapper userRoleMapper;
+
+    @Autowired
     private RoleService roleService;
 
     @Override
@@ -66,6 +70,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return ResponseResult.okResult(userInfoVo);
     }
 
+    // TODO 这里本意是防止输入不该修改的字段，但是与其这样修改不如使用DTO类
     @Override
     public ResponseResult updateUserInfo(User user) {
         // TODO 代码太烂 需要改进
@@ -180,6 +185,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
+    @Transactional
     public ResponseResult addUser(AddUserDto addUserDto) {
         // 用戶名不能為空
         if (!StringUtils.hasText(addUserDto.getUserName())) {
@@ -188,68 +194,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         List<User> list = list();
         //用户名必须之前未存在
         Set<String> userNameSet = list.stream()
-                .map(new Function<User, String>() {
-                    @Override
-                    public String apply(User user) {
-                        return user.getUserName();
-                    }
-                }).collect(Collectors.toSet());
-        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+                .map(User::getUserName).collect(Collectors.toSet());
         if (userNameSet.contains(addUserDto.getUserName())) {
             return ResponseResult.errorResult(AppHttpCodeEnum.USERNAME_EXIST);
         }
-//        queryWrapper.eq(!StringUtils.hasText(addUserDto.getUserName()), User::getUserName, addUserDto.getUserName());
-
         //手机号必须之前未存在
-//        queryWrapper.eq(!StringUtils.hasText(addUserDto.getPhonenumber()), User::getPhonenumber, addUserDto.getPhonenumber());
-
         Set<String> phonenumberSet = list.stream()
-                .map(new Function<User, String>() {
-                    @Override
-                    public String apply(User user) {
-                        return user.getPhonenumber();
-                    }
-                }).collect(Collectors.toSet());
+                .map(User::getPhonenumber).collect(Collectors.toSet());
         if (phonenumberSet.contains(addUserDto.getPhonenumber())) {
             return ResponseResult.errorResult(AppHttpCodeEnum.PHONENUMBER_EXIST);
         }
         //邮箱必须之前未存在
-//        queryWrapper.eq(!StringUtils.hasText(addUserDto.getEmail()), User::getEmail, addUserDto.getEmail());
-
         Set<String> emailSet = list.stream()
-                .map(new Function<User, String>() {
-                    @Override
-                    public String apply(User user) {
-                        return user.getEmail();
-                    }
-                }).collect(Collectors.toSet());
+                .map(User::getEmail).collect(Collectors.toSet());
         if (emailSet.contains(addUserDto.getEmail())) {
             return ResponseResult.errorResult(AppHttpCodeEnum.EMAIL_EXIST);
         }
-
-//        if (count(queryWrapper) > 0) {
-//            return ResponseResult.errorResult(AppHttpCodeEnum.USERNAME_EXIST);
-//        }
-
         //密碼需要加密存儲
         String encode = passwordEncoder.encode(addUserDto.getPassword());
         addUserDto.setPassword(encode);
-
-
         User user = BeanCopyUtils.copyBean(addUserDto, User.class);
+        // 保存用户
         save(user);
-        LambdaQueryWrapper<User> queryWrapper1 = new LambdaQueryWrapper<>();
-        queryWrapper1.eq(StringUtils.hasText(addUserDto.getUserName()), User::getUserName, addUserDto.getUserName());
-
-        Long userId = getOne(queryWrapper1).getId();
-
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(StringUtils.hasText(addUserDto.getUserName()), User::getUserName, addUserDto.getUserName());
+        // 获取回显用户id
+        Long userId = user.getId();
         List<Long> roleIds = addUserDto.getRoleIds();
-
-        UserRole userRole = new UserRole();
-        userRole.setUserId(userId);
-        for (Long roleId : roleIds) {
-            userRole.setRoleId(roleId);
-            userRoleService.save(userRole);
+        // 插入用户和角色管理信息
+        if (!Objects.isNull(roleIds)) {
+            Boolean add = userRoleMapper.saveUserAndRole(userId, roleIds);
         }
         return ResponseResult.okResult();
     }
@@ -260,6 +234,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (loginUserId.equals(id)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.DELETE_ERROR);
         }
+        // 删除用户表
+        this.removeById(id);
+        // 删除用户角色关联表
+        userRoleService.remove(new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, id));
         return ResponseResult.okResult();
     }
 
@@ -294,15 +272,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(!Objects.isNull(updateUserDto.getId()), User::getId, updateUserDto.getId());
         User user = BeanCopyUtils.copyBean(updateUserDto, User.class);
+        // 更新用户
         updateById(user);
         Long userId = updateUserDto.getId();
         UserRole userRole = new UserRole();
         userRole.setUserId(userId);
-
         List<Long> roleIds = updateUserDto.getRoleIds();
-        for (Long roleId : roleIds) {
-            userRole.setRoleId(roleId);
-            userRoleService.save(userRole);
+        // 插入用户和角色管理信息
+        if (!Objects.isNull(roleIds)) {
+            Boolean add = userRoleMapper.saveUserAndRole(userId, roleIds);
         }
         return ResponseResult.okResult();
     }

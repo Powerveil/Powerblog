@@ -49,11 +49,18 @@ public class CategoryController {
 
             List<ExcelCategoryVo> excelCategoryVos = BeanCopyUtils.copyBeanList(categoryVos, ExcelCategoryVo.class);
 
-            EasyExcel.write(response.getOutputStream(), ExcelCategoryVo.class).autoCloseStream(Boolean.FALSE).sheet("分类导出")
-                    .doWrite(excelCategoryVos);
+            EasyExcel.write(response.getOutputStream(), ExcelCategoryVo.class)
+                     // autoCloseStream 设置是否在写入完成后自动关闭输出流。
+                     // 此处传递 Boolean.FALSE 表示不自动关闭输出流，可能是为了在后续进行其他操作。
+                     .autoCloseStream(Boolean.FALSE)
+                     // sheet 指定要使用的工作表名称，此处设置为 "分类导出"。
+                     .sheet("分类导出")
+                     // doWrite 执行实际的数据写入操作，将传递的 excelCategoryVos 对象的数据写入 Excel 表格。
+                     .doWrite(excelCategoryVos);
         } catch (Exception e) {
             e.printStackTrace();
             // 如果出现异常也要响应json
+            // 重置 HTTP 响应，清除之前设置的响应头和状态码。
             response.reset();
             ResponseResult result = ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR);
             WebUtils.renderString(response, JSON.toJSONString(result));

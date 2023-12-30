@@ -1,6 +1,7 @@
 package com.power.config;
 
 import com.power.filter.JwtAuthenticationTokenFilter;
+import com.power.handler.security.POSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +31,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private AccessDeniedHandler accessDeniedHandler;
 
+    @Autowired
+    private POSuccessHandler poSuccessHandler;
+
     @Override
     @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -38,6 +42,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+//        super.configure(http);
+        // 设置认证认证处理器
+        // 这里不会生效
+//        http.formLogin().successHandler(poSuccessHandler);
         http
                 //关闭csrf
                 .csrf().disable()

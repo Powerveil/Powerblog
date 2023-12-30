@@ -40,6 +40,11 @@ public class WebConfig implements WebMvcConfigurer {
         fastJsonConfig.setSerializerFeatures(SerializerFeature.PrettyFormat);
         fastJsonConfig.setDateFormat("yyyy-MM-dd HH:mm:ss");
 
+        // 将 Long 类型的对象的序列化器设置为 ToStringSerializer 的实例，
+        // 以便在序列化和反序列化过程中使用 ToStringSerializer 来处理 Long 类型的对象。
+        // - ToStringSerializer.instance 是 ToStringSerializer 类的实例，
+        // - ToStringSerializer 是一个序列化器，它将对象转换为字符串表示形式进行序列化和反序列化。
+
         SerializeConfig.globalInstance.put(Long.class, ToStringSerializer.instance);
 
         fastJsonConfig.setSerializeConfig(SerializeConfig.globalInstance);
